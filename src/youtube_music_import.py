@@ -5,33 +5,17 @@ Description: Import CSV playlist to YouTube Music
 Author: Praful https://github.com/Praful/music-playlist-export-import
 Licence: GPL v3
 =============================================================================
+TODO:
+- if playlist song not found on YouTube add other type of track eg video
 """
 
-from bs4 import BeautifulSoup
-import requests
-import re
-import sys
-import traceback
-import collections
-from collections.abc import Sequence
+from utils import *
 import argparse
-import csv
-import contextlib
-import io
-import time
-import html
 from pprint import pprint
-from datetime import datetime
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.service import Service
 from ytmusicapi import YTMusic
-from difflib import SequenceMatcher as FuzzyMatch
 
 
 DEFAULT_PLAYLIST_NAME = "Uploaded playlist from youtube_music_import"
-
-TAB = '\t'
 
 
 def setup_command_line():
@@ -48,9 +32,29 @@ def setup_command_line():
     return cmdline
 
 
-def match(s1, s2):
-    s1a, s2a = s1.lower(), s2.lower()
-    return s1a in s2a or s2a in s1a or FuzzyMatch(None, s1a, s2a).ratio() > 0.7
+# return true if any of the (potentially mulitple) artists match
+# with the input playlist's artist
+def artist_match(orig_artist, artists):
+    for artist in artists:
+        if match(orig_artist, artist['name']):
+            return True
+    return False
+
+
+def find_song(search_results, type, artist, song):
+    for i, s in enumerate(search_results):
+        try:
+            if s['resultType'] == type and artist_match(artist, s['artists']) and match(song, s['title']):
+                return i
+
+            # video might have artist in title
+            if s['resultType'] == 'video' and match(song, s['title']) and match(artist, s['title']):
+                return i
+
+        except:
+            print('Error', s)
+
+    return -1
 
 
 def import_to_youtube(tracks, playlist_name, playlist_desc):
@@ -62,40 +66,26 @@ def import_to_youtube(tracks, playlist_name, playlist_desc):
 
     playlistId = ytmusic.create_playlist(playlist_name, playlist_desc)
     for artist, song in tracks:
-        search_results = ytmusic.search(f'{artist} - {song}')
+        # search_results = ytmusic.search(f'{artist} - {song}')
+        search_results = ytmusic.search(f'{song} by {artist}')
 
-        print('Adding ', search_results[0]['artists']
-              [0]['name'], search_results[0]['title'])
+        print(f'Adding song {song} by {artist}')
 
-        song_index = -1
-        for i, s in enumerate(search_results):
-            try:
-                if s['resultType'] == 'song' and match(artist, s['artists'][0]['name']) and match(song, s['title']):
-                    song_index = i
-                    break
-
-            except:
-                print('Error', s)
+        song_index = find_song(search_results, 'song', artist, song)
+        if song_index < 0:
+            song_index = find_song(search_results, 'video', artist, song)
 
         if song_index > -1:
+            # pass
+
             res = ytmusic.add_playlist_items(
                 playlistId, [search_results[song_index]['videoId']])
             if res['status'] != 'STATUS_SUCCEEDED':
                 print('-- Failed:', res)
         else:
-            print("**", artist, song, "not found")
-    
+            print("*** Not found")
+
     print('Finished')
-
-
-def read_playlist(filename):
-    with open(filename, newline='') as f:
-        reader = csv.reader(f, delimiter='\t')
-        result = [row for row in reader]
-
-    del result[0]  # remove header
-    print(f'Total tracks: {len(result)}')
-    return result
 
 
 def main():
@@ -103,11 +93,10 @@ def main():
     Processing begins here if script run directly
     """
     args = setup_command_line().parse_args()
-    playlist = read_playlist(args.input)
-    # playlist = read_playlist('./playlist1.csv')
-    print(playlist)
+    playlist = read_csv(args.input)
+    # print(playlist)
 
-    desc = args.description if args.description !='' else args.name
+    desc = args.description if args.description != '' else args.name
     import_to_youtube(playlist, args.name, desc)
 
 
