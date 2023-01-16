@@ -8,10 +8,9 @@ Licence: GPL v3
 References/examples:
 
 - https://github.com/spotipy-dev/spotipy/tree/master/examples
-
 - https://towardsdatascience.com/extracting-song-data-from-the-spotify-api-using-python-b1e79388d50
+- https://developer.spotify.com/console/playlists/
 
-- 
 """
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -49,8 +48,10 @@ def get_playlist_tracks(sp, playlist_id):
 
 def export(url, output):
 
+    # Generate your client id and secret from
+    #  https://developer.spotify.com/dashboard/applications
     auth_manager = SpotifyClientCredentials(
-        client_id='x', client_secret='y')
+        client_id='your id', client_secret='your secret')
 
     sp = spotipy.Spotify(auth_manager=auth_manager)
 
