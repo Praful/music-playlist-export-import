@@ -6,7 +6,7 @@ Author: Praful https://github.com/Praful/music-playlist-export-import
 Licence: GPL v3
 =============================================================================
 TODO:
-- if playlist song not found on YouTube add other type of track eg video
+
 """
 
 from utils import *
@@ -32,7 +32,7 @@ def setup_command_line():
     return cmdline
 
 
-# return true if any of the (potentially mulitple) artists match
+# return true if any of the (potentially multiple) artists match
 # with the input playlist's artist
 def artist_match(orig_artist, artists):
     for artist in artists:
@@ -63,7 +63,7 @@ def find_song(ytmusic, search_results, type, artist, song):
     return None
 
 
-def import_to_youtube(tracks, playlist_name, playlist_desc):
+def import_playlist(tracks, playlist_name, playlist_desc):
     # this lets user paste in connection string from command line
     # YTMusic.setup(filepath="headers_auth.json")
 
@@ -122,7 +122,7 @@ def main():
     # print(playlist)
 
     desc = args.description if args.description != '' else args.name
-    import_to_youtube(playlist, args.name, desc)
+    import_playlist(playlist, args.name, desc)
 
 
 if __name__ == '__main__':

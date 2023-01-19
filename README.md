@@ -8,17 +8,21 @@ All scripts have a `--help` switch, eg
 
 `python spotify_playlist_export.py --help`
 
+When creating a new playlist (in the import scripts), a number of attempts are made to find the song. Sometimes, however, nothing is found. This may be because the song doesn't exist on the platform. I've also found that sometimes there are typos in the song title or artist on the platform from which the playlist was exported. You always have the option of manually adding tracks that could not be imported from the website or app.
+
 There are several scripts:
 
-## bbc_playlist_export.py
+### bbc_playlist_export.py
 
 This scrapes a specific playlist from the BBC website. 
 
 In practice, you'll have to create your own export playlist function. The `bbc_playlist_export.py` gives two examples of scraping website data: one using a dynamic website and the other using a static website.
 
-## spotify_playlist_export.py
+### spotify_playlist_export.py
 
-This exports a playlist from Spotify. This uses the  [unofficial spotipy API](https://spotipy.readthedocs.io/). I use the [Client Creditials Flow](https://spotipy.readthedocs.io/en/2.22.0/#client-credentials-flow). You'll need to generate a Spotify Client Id and Client Secret to use the API from the [Spotify Developer website](https://developer.spotify.com/dashboard/applications).
+This exports a playlist from Spotify. This uses the  [unofficial spotipy API](https://spotipy.readthedocs.io/). I use the [Authorization Code Flow](https://spotipy.readthedocs.io/en/2.22.0/#authorization-code-flow). You'll need to generate a Spotify Client Id and Client Secret to use the API from the [Spotify Developer website](https://developer.spotify.com/dashboard/applications) and add a URL to redirect to. This can be anything. I use http://localhost. Once authenticated, copy the browser URL (starting http://localhost/?code...) to the prompt when running this script.
+
+For exporting Spotify playlists, the Client Credentials Flow can be used. However, this can't be used for modifying user data, such as creating a playlist. To siplify the code, I use the same method for exporting and importing.
 
 
 Use the URL of the playlist you want to export from a browser. For example: 
@@ -26,7 +30,15 @@ Use the URL of the playlist you want to export from a browser. For example:
 python .\spotify_playlist_export.py --csv reading-chill-out.csv --url https://open.spotify.com/playlist/37i9dQZF1DWXrDQedVqw6q
 ```
 
-## youtube_music_import.py
+### spotify_playlist_import.py
+
+Imports playlist into Spotify for CSV file. Example:
+
+```
+python .\spotify_playlist_import.py --csv .\example1.csv --name 'test' --description 'Imported from YouTube Music'
+```
+
+### youtube_music_import.py
 
 
 This uses the [unofficial YouTube Music API](https://ytmusicapi.readthedocs.io/en/stable/index.html) to import a CSV playlist into YouTube Music. That documentation describes how to connect your Python script to YouTube Music and install the API on your computer.
@@ -36,3 +48,11 @@ Here's an example of running the import into YouTube Music using the output from
  ```
  python .\youtube_music_import.py --csv .\reading-chill-out.csv --name 'Reading Chill Out' --description 'Calm music to help you focus on your reading (imported from Spotify)'
  ```
+
+### youtube_music_export.py
+
+Exports a YouTube Music playlist. Use the URL of the playlist in the browser to specify which playlist to export. Example:
+
+```
+python .\youtube_music_export.py --url https://music.youtube.com/playlist?list=RDCLAK5uy_n1quIxbUdCfJDCklZQxyss75yUKLp1oMQ --csv example1.csv
+```
