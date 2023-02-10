@@ -64,7 +64,9 @@ def find_song(ytmusic, search_results, type, artist, song):
 
 
 def import_playlist(tracks, playlist_name, playlist_desc):
-    # this lets user paste in connection string from command line
+    # This lets user paste in connection string from command line.
+    # You can uncomment this line the first time you run the script so that the 
+    # headers_auth.json file is created.
     # YTMusic.setup(filepath="headers_auth.json")
 
     SUCCESS = 'STATUS_SUCCEEDED'

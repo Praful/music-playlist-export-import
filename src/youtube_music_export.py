@@ -32,6 +32,11 @@ def setup_command_line():
 
 
 def export_playlist(url, output):
+    # This lets user paste in connection string from command line.
+    # You can uncomment this line the first time you run the script so that the 
+    # headers_auth.json file is created.
+    # YTMusic.setup(filepath="headers_auth.json")
+    #
     ytmusic = YTMusic('headers_auth.json')
 
     # test

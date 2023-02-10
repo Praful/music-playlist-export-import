@@ -10,6 +10,17 @@ All scripts have a `--help` switch, eg
 
 When creating a new playlist (in the import scripts), a number of attempts are made to find the song. Sometimes, however, nothing is found. This may be because the song doesn't exist on the platform. I've also found that sometimes there are typos in the song title or artist on the platform from which the playlist was exported. You always have the option of manually adding tracks that could not be imported from the website or app.
 
+You'll need some extra Python libraries, which can be installed using `pip`:
+```
+pip install spotipy
+pip install ytmusicapi
+pip install beautifulsoup4
+pip install selenium
+
+```
+
+When calling some of the scripts, depending on your operating system and settings, you may need to use a single quote for the URLs eg `--url 'https:/....'`.
+
 There are several scripts:
 
 ### bbc_playlist_export.py
@@ -24,10 +35,16 @@ This exports a playlist from Spotify. This uses the  [unofficial spotipy API](ht
 
 For exporting Spotify playlists, the Client Credentials Flow can be used. However, this can't be used for modifying user data, such as creating a playlist. To siplify the code, I use the same method for exporting and importing.
 
+Once you have generated your spotify client id and secret, set them using environment variables before running the script. For example (in Linux bash/zsh):
+```
+export SPOTIFY_CLIENT_ID='12345'
+export SPOTIFY_CLIENT_SECRET='ABCD'
+```
+For Windows Powershell, see [here](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/set_1).
 
 Use the URL of the playlist you want to export from a browser. For example: 
 ```
-python .\spotify_playlist_export.py --csv reading-chill-out.csv --url https://open.spotify.com/playlist/37i9dQZF1DWXrDQedVqw6q
+python ./spotify_playlist_export.py --csv reading-chill-out.csv --url https://open.spotify.com/playlist/37i9dQZF1DWXrDQedVqw6q
 ```
 
 ### spotify_playlist_import.py
@@ -35,7 +52,7 @@ python .\spotify_playlist_export.py --csv reading-chill-out.csv --url https://op
 Imports playlist into Spotify for CSV file. Example:
 
 ```
-python .\spotify_playlist_import.py --csv .\example1.csv --name 'test' --description 'Imported from YouTube Music'
+python ./spotify_playlist_import.py --csv ./example1.csv --name 'test' --description 'Imported from YouTube Music'
 ```
 
 ### youtube_music_import.py
@@ -43,10 +60,16 @@ python .\spotify_playlist_import.py --csv .\example1.csv --name 'test' --descrip
 
 This uses the [unofficial YouTube Music API](https://ytmusicapi.readthedocs.io/en/stable/index.html) to import a CSV playlist into YouTube Music. That documentation describes how to connect your Python script to YouTube Music and install the API on your computer.
 
+You may, the first time you run the youtube scripts, want to uncomment the line:
+```
+    # YTMusic.setup(filepath="headers_auth.json")
+```
+so that the pasted credentials are saved in file `headers_auth.json`. You can create this file manually as described [here](https://ytmusicapi.readthedocs.io/en/stable/setup.html).
+
 Here's an example of running the import into YouTube Music using the output from the Spotify export above:
 
  ```
- python .\youtube_music_import.py --csv .\reading-chill-out.csv --name 'Reading Chill Out' --description 'Calm music to help you focus on your reading (imported from Spotify)'
+ python ./youtube_music_import.py --csv ./reading-chill-out.csv --name 'Reading Chill Out' --description 'Calm music to help you focus on your reading (imported from Spotify)'
  ```
 
 ### youtube_music_export.py
@@ -54,5 +77,5 @@ Here's an example of running the import into YouTube Music using the output from
 Exports a YouTube Music playlist. Use the URL of the playlist in the browser to specify which playlist to export. Example:
 
 ```
-python .\youtube_music_export.py --url https://music.youtube.com/playlist?list=RDCLAK5uy_n1quIxbUdCfJDCklZQxyss75yUKLp1oMQ --csv example1.csv
+python ./youtube_music_export.py --url https://music.youtube.com/playlist?list=RDCLAK5uy_n1quIxbUdCfJDCklZQxyss75yUKLp1oMQ --csv example1.csv
 ```
