@@ -77,38 +77,42 @@ def import_playlist(tracks, playlist_name, playlist_desc):
 
     playlistId = ytmusic.create_playlist(playlist_name, playlist_desc)
     for artist, song in tracks:
-        search_results = ytmusic.search(f'{song} by {artist}')
+        try:
+            search_results = ytmusic.search(f'{song} by {artist}')
 
-        print(f'Adding song {song} by {artist}')
+            print(f'Adding song {song} by {artist}')
 
-        audioPlaylistId = None
-        videoId = find_song(ytmusic, search_results, 'song', artist, song)
+            audioPlaylistId = None
+            videoId = find_song(ytmusic, search_results, 'song', artist, song)
 
-        if videoId is None:
-            audioPlaylistId = find_song(
-                ytmusic, search_results, 'album', artist, song)
+            if videoId is None:
+                audioPlaylistId = find_song(
+                    ytmusic, search_results, 'album', artist, song)
 
-        if videoId is None and audioPlaylistId is None:
-            videoId = find_song(
-                ytmusic, search_results, 'video', artist, song)
+            if videoId is None and audioPlaylistId is None:
+                videoId = find_song(
+                    ytmusic, search_results, 'video', artist, song)
 
-        if videoId is not None:
-            res = ytmusic.add_playlist_items(playlistId, [videoId])
-            if res['status'] != SUCCESS:
-                print('-- Failed:', res)
-                fail_count += 1
+            if videoId is not None:
+                res = ytmusic.add_playlist_items(playlistId, [videoId])
+                if res['status'] != SUCCESS:
+                    print('-- Failed:', res)
+                    fail_count += 1
+                else:
+                    success_count += 1
+            elif audioPlaylistId is not None:
+                res = ytmusic.add_playlist_items(
+                    playlistId, source_playlist=audioPlaylistId)
+                if res['status'] != SUCCESS:
+                    print('-- Failed:', res)
+                    fail_count += 1
+                else:
+                    success_count += 1
             else:
-                success_count += 1
-        elif audioPlaylistId is not None:
-            res = ytmusic.add_playlist_items(
-                playlistId, source_playlist=audioPlaylistId)
-            if res['status'] != SUCCESS:
-                print('-- Failed:', res)
+                print("*** Not found")
                 fail_count += 1
-            else:
-                success_count += 1
-        else:
-            print("*** Not found")
+        except Exception as e:
+            print('Error adding song', e)
             fail_count += 1
 
     print(
