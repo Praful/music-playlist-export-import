@@ -94,7 +94,7 @@ def import_playlist(tracks, playlist_name, playlist_desc):
     ytmusic = YTMusic('headers_auth.json')
     videoIdSet = set()
 
-    print('Searching YouTube for songs...')
+    print('\nSearching YouTube for songs...\n')
 
     for artist, song in tracks:
         try:
@@ -113,12 +113,10 @@ def import_playlist(tracks, playlist_name, playlist_desc):
                 print("*** Not found")
 
         except Exception as e:
-            fail_count += 1
             print('Error searching song', e)
-            print(f'videoId {videoId}')
             traceback.print_exc(file=sys.stdout)
 
-    print('Creating YouTube playlist')
+    print('\nCreating YouTube playlist\n')
     playlistId = ytmusic.create_playlist(playlist_name, playlist_desc)
     res = ytmusic.add_playlist_items(playlistId, list(videoIdSet))
     if res['status'] == SUCCESS:
