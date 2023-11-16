@@ -10,14 +10,12 @@ All scripts have a `--help` switch, eg
 
 When creating a new playlist (in the import scripts), a number of attempts are made to find the song. Sometimes, however, nothing is found. This may be because the song doesn't exist on the platform. I've also found that sometimes there are typos in the song title or artist on the platform from which the playlist was exported. You always have the option of manually adding tracks that could not be imported from the website or app.
 
-You'll need some extra Python libraries, which can be installed using `pip`:
-```
-pip install spotipy
-pip install ytmusicapi
-pip install beautifulsoup4
-pip install selenium
+You'll need some extra Python libraries, which can be installed using `pip`. From the top level directory, run:
 
 ```
+pip install -r requirements.txt
+```
+
 
 When calling some of the scripts, depending on your operating system and settings, you may need to use a single quote for the URLs eg `--url 'https:/....'`.
 
@@ -33,14 +31,15 @@ In practice, you'll have to create your own export playlist function. The `bbc_p
 
 This exports a playlist from Spotify. This uses the  [unofficial spotipy API](https://spotipy.readthedocs.io/). I use the [Authorization Code Flow](https://spotipy.readthedocs.io/en/2.22.0/#authorization-code-flow). You'll need to generate a Spotify Client Id and Client Secret to use the API from the [Spotify Developer website](https://developer.spotify.com/dashboard/applications) and add a URL to redirect to. This can be anything. I use http://localhost. Once authenticated, copy the browser URL (starting http://localhost/?code...) to the prompt when running this script.
 
-For exporting Spotify playlists, the Client Credentials Flow can be used. However, this can't be used for modifying user data, such as creating a playlist. To siplify the code, I use the same method for exporting and importing.
+For exporting Spotify playlists, the Client Credentials Flow can be used. However, this can't be used for modifying user data, such as creating a playlist. To simplify the code, I use the same method for exporting and importing.
 
-Once you have generated your spotify client id and secret, set them using environment variables before running the script. For example (in Linux bash/zsh):
+Once you have generated your Spotify client id and secret, set them using environment variables before running the script. For example (in Linux bash/zsh):
 ```
-export SPOTIFY_CLIENT_ID='12345'
-export SPOTIFY_CLIENT_SECRET='ABCD'
+export SPOTIPY_CLIENT_ID='12345'
+export SPOTIPY_CLIENT_SECRET='ABCD'
+export SPOTIPY_REDIRECT_URI='127.0.0.1'
 ```
-For Windows Powershell, see [here](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/set_1).
+For Windows PowerShell, see [here](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/set_1).
 
 Use the URL of the playlist you want to export from a browser. For example: 
 ```
@@ -60,11 +59,14 @@ python ./spotify_playlist_import.py --csv ./example1.csv --name 'test' --descrip
 
 This uses the [unofficial YouTube Music API](https://ytmusicapi.readthedocs.io/en/stable/index.html) to import a CSV playlist into YouTube Music. That documentation describes how to connect your Python script to YouTube Music and install the API on your computer.
 
-You may, the first time you run the youtube scripts, want to uncomment the line:
+You may, the first time you run the YouTube scripts, want to uncomment the line:
 ```
-    # YTMusic.setup(filepath="headers_auth.json")
+    # ytmusicapi.setup(filepath="headers_auth.json")
 ```
-so that the pasted credentials are saved in file `headers_auth.json`. You can create this file manually as described [here](https://ytmusicapi.readthedocs.io/en/stable/setup.html).
+so that the pasted credentials are saved in file `headers_auth.json`. To find the 
+credentials in your browser, see [here](https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html#copy-authentication-headers).
+
+You can also create this file manually as described [here](https://ytmusicapi.readthedocs.io/en/stable/setup.html).
 
 Here's an example of running the import into YouTube Music using the output from the Spotify export above:
 

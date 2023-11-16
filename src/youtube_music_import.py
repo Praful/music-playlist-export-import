@@ -12,8 +12,10 @@ TODO:
 from utils import *
 import argparse
 from pprint import pprint
-from ytmusicapi import YTMusic
-
+import ytmusicapi
+#  from ytmusicapi.ytmusic import YTMusic
+from ytmusicapi.ytmusic import YTMusic  # noqa: E402
+import traceback
 
 DEFAULT_PLAYLIST_NAME = "Uploaded playlist from youtube_music_import"
 
@@ -63,56 +65,68 @@ def find_song(ytmusic, search_results, type, artist, song):
     return None
 
 
+def failed_response_reason(res):
+    try:
+        actions = res['actions'][0]
+        text = actions['addToToastAction']['item']['notificationActionRenderer']['responseText']['runs'][0]['text']
+        return text
+    except:
+        return None
+
+
+def print_failed_response(res):
+    reason = failed_response_reason(res)
+    if reason is None:
+        print('-- Failed, full error:', res)
+    else:
+        print('-- Failed:', reason)
+
+
 def import_playlist(tracks, playlist_name, playlist_desc):
     # This lets user paste in connection string from command line.
-    # You can uncomment this line the first time you run the script so that the 
-    # headers_auth.json file is created.
-    # YTMusic.setup(filepath="headers_auth.json")
+    # You can uncomment this line the first time you run the script so that the
+    # headers_auth.json file is created. Remember to comment it out again.
+    #  ytmusicapi.setup(filepath="headers_auth.json")
 
     SUCCESS = 'STATUS_SUCCEEDED'
 
     # this assumes connection string are in json file
     ytmusic = YTMusic('headers_auth.json')
-    success_count = fail_count = 0
+    videoIdSet = set()
 
-    playlistId = ytmusic.create_playlist(playlist_name, playlist_desc)
+    print('Searching YouTube for songs...')
+
     for artist, song in tracks:
-        search_results = ytmusic.search(f'{song} by {artist}')
+        try:
+            search_results = ytmusic.search(f'{song} by {artist}')
 
-        print(f'Adding song {song} by {artist}')
+            print(f'{song} by {artist}')
+            videoId = find_song(ytmusic, search_results, 'song', artist, song)
 
-        audioPlaylistId = None
-        videoId = find_song(ytmusic, search_results, 'song', artist, song)
+            if videoId is None:
+                videoId = find_song(
+                    ytmusic, search_results, 'video', artist, song)
 
-        if videoId is None:
-            audioPlaylistId = find_song(
-                ytmusic, search_results, 'album', artist, song)
-
-        if videoId is None and audioPlaylistId is None:
-            videoId = find_song(
-                ytmusic, search_results, 'video', artist, song)
-
-        if videoId is not None:
-            res = ytmusic.add_playlist_items(playlistId, [videoId])
-            if res['status'] != SUCCESS:
-                print('-- Failed:', res)
-                fail_count += 1
+            if videoId is not None:
+                videoIdSet.add(videoId)
             else:
-                success_count += 1
-        elif audioPlaylistId is not None:
-            res = ytmusic.add_playlist_items(
-                playlistId, source_playlist=audioPlaylistId)
-            if res['status'] != SUCCESS:
-                print('-- Failed:', res)
-                fail_count += 1
-            else:
-                success_count += 1
-        else:
-            print("*** Not found")
+                print("*** Not found")
+
+        except Exception as e:
             fail_count += 1
+            print('Error searching song', e)
+            print(f'videoId {videoId}')
+            traceback.print_exc(file=sys.stdout)
 
-    print(
-        f'Finished: imported {success_count}, failed {fail_count}, total {len(tracks)}')
+    print('Creating YouTube playlist')
+    playlistId = ytmusic.create_playlist(playlist_name, playlist_desc)
+    res = ytmusic.add_playlist_items(playlistId, list(videoIdSet))
+    if res['status'] == SUCCESS:
+        print(f"Success: {len(videoIdSet)} out {len(tracks)} added to new playlist {playlist_name} at")
+        print(f"https://music.youtube.com/playlist?list={playlistId}")
+    else:
+        print_failed_response(res)
+
 
 
 def main():

@@ -1,0 +1,4 @@
+spotipy
+ytmusicapi
+beautifulsoup4
+selenium

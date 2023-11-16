@@ -47,7 +47,8 @@ def smart_open(filename=None, filemode='w'):
 
 def match(s1, s2):
     s1a, s2a = s1.lower(), s2.lower()
-    return s1a in s2a or s2a in s1a or FuzzyMatch(None, s1a, s2a).ratio() > 0.7
+    #  print(s1,'/', s2, '/', FuzzyMatch(None, s1a, s2a).ratio() )
+    return s1a in s2a or s2a in s1a or (FuzzyMatch(None, s1a, s2a).ratio() > 0.3)
 
 
 def isBlank(myString):
