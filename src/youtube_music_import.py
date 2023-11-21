@@ -43,26 +43,53 @@ def artist_match(orig_artist, artists):
     return False
 
 
+# ytmusic and type are ignore now; leave in case they're reinstated
 def find_song(ytmusic, search_results, type, artist, song):
+    def song_title(res):
+        title = res["title"]
+        if res["resultType"] == "video":
+            title_split = title.split("-")
+            if len(title_split) == 2:
+                title = title_split[1]
+        return title
+
+    #  print(f'{song} by {artist}, {type} ==========================')
+    #  pprint(search_results)
+    score = {}
+    #  videoids = {}
     for i, s in enumerate(search_results):
         try:
-            if s['resultType'] == type and artist_match(artist, s['artists']) and match(song, s['title']):
-                # for singles on albums, there is no videoId; we have to get the audioPlaylistId
-                # for the single from the album
-                if type == 'album' and s['type'] == 'Single':
-                    album = ytmusic.get_album(s['browseId'])
-                    return album['audioPlaylistId']
-                else:
+            #  print("------------------------------------")
+            #  pprint(s)
+            if s['resultType'] in ['song', 'album', 'video'] and 'videoId' in s:
+                title = song_title(s)
+                # if we have a good match, return the videoId
+                if artist_match(artist, s['artists']) and match(song, title):
                     return s['videoId']
-
-            # video might have artist in title
-            if s['resultType'] == 'video' and match(song, s['title']) and match(artist, s['title']):
-                return s['videoId']
+                else:
+                    # store fuzzy match score and later pick the best
+                    for a in s['artists']:
+                        ratio = fuzzy_match_ratio(
+                            song, title, artist, a['name'])
+                        current = score.get(s['videoId'], 0)
+                        if ratio > current:
+                            #  videoids[s['videoId']] = s
+                            score[s['videoId']] = ratio
 
         except Exception as e:
             print('Error', e, s)
+            traceback.print_exc()
 
-    return None
+    # max score return key
+    if len(score) > 0:
+        #  print('========= score', score)
+        max_score_key = max(score, key=lambda k: score[k])
+        #  print('========= max score', max_score_key)
+        #  print(f'For {song} by {artist} picked:')
+        #  print(videoids[max_score_key])
+        return max_score_key
+    else:
+        return None
 
 
 def failed_response_reason(res):
@@ -99,6 +126,8 @@ def import_playlist(tracks, playlist_name, playlist_desc):
     for artist, song in tracks:
         try:
             search_results = ytmusic.search(f'{song} by {artist}')
+            #  search_results = ytmusic.search(
+            #  f'{song} by {artist}', filter='songs', ignore_spelling=True)
 
             print(f'{song} by {artist}')
             videoId = find_song(ytmusic, search_results, 'song', artist, song)
@@ -117,14 +146,16 @@ def import_playlist(tracks, playlist_name, playlist_desc):
             traceback.print_exc(file=sys.stdout)
 
     print('\nCreating YouTube playlist\n')
+   #  print(videoIdSet)
+    #  return
     playlistId = ytmusic.create_playlist(playlist_name, playlist_desc)
     res = ytmusic.add_playlist_items(playlistId, list(videoIdSet))
     if res['status'] == SUCCESS:
-        print(f"Success: {len(videoIdSet)} out {len(tracks)} added to new playlist {playlist_name} at")
+        print(
+            f"Success: {len(videoIdSet)} out {len(tracks)} added to new playlist {playlist_name} at")
         print(f"https://music.youtube.com/playlist?list={playlistId}")
     else:
         print_failed_response(res)
-
 
 
 def main():

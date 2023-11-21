@@ -45,10 +45,23 @@ def smart_open(filename=None, filemode='w'):
             fh.close()
 
 
+def fuzzy_match_ratio(s11, s12, s21, s22):
+    #  print('fuzzy match ratio ***********', s11, s12, s21, s22)
+    s11a, s12a = s11.lower(), s12.lower()
+    s21a, s22a = s21.lower(), s22.lower()
+    #  print(FuzzyMatch(None, s11a, s12a).ratio(), FuzzyMatch(None, s21a, s22a).ratio())
+    #
+    #  I'm not sure what's the best way to weight the two ratios
+    #  (they're for artist and song). For now, return average, which seems good
+    #  enough from testing.
+    return (FuzzyMatch(None, s11a, s12a).ratio() + FuzzyMatch(None, s21a, s22a).ratio())/2
+
+
 def match(s1, s2):
     s1a, s2a = s1.lower(), s2.lower()
-    #  print(s1,'/', s2, '/', FuzzyMatch(None, s1a, s2a).ratio() )
-    return s1a in s2a or s2a in s1a or (FuzzyMatch(None, s1a, s2a).ratio() > 0.3)
+    #  print('+++++++++++', s1, '/', s2, '/', FuzzyMatch(None, s1a, s2a).ratio())
+    #  return s1a in s2a or s2a in s1a or (FuzzyMatch(None, s1a, s2a).ratio() > 0.3)
+    return s1a in s2a or s2a in s1a
 
 
 def isBlank(myString):
