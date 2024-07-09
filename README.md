@@ -59,14 +59,13 @@ python ./spotify_playlist_import.py --csv ./example1.csv --name 'test' --descrip
 
 This uses the [unofficial YouTube Music API](https://ytmusicapi.readthedocs.io/en/stable/index.html) to import a CSV playlist into YouTube Music. That documentation describes how to connect your Python script to YouTube Music and install the API on your computer.
 
-You may, the first time you run the YouTube scripts, want to uncomment the line:
+To save a playlist, you must provide credentials. Run
 ```
-    # ytmusicapi.setup(filepath="headers_auth.json")
+ytmusicapi browser --file headers_auth.json
 ```
-so that the pasted credentials are saved in file `headers_auth.json`. To find the 
-credentials in your browser, see [here](https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html#copy-authentication-headers).
+and paste in the header from your browser once you've logged into YouTube Music. Copy the POST authentication headers from the browser so that the pasted credentials are saved in file `headers_auth.json`. To find the credentials in your browser, see [here](https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html#copy-authentication-headers).
 
-You can also create this file manually as described [here](https://ytmusicapi.readthedocs.io/en/stable/setup.html).
+You can also create this file manually as described [here](https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html#manual-file-creation).
 
 Here's an example of running the import into YouTube Music using the output from the Spotify export above:
 
