@@ -1,3 +1,11 @@
+# /// script
+# dependencies = [
+#   "ytmusicapi",
+#   "requests",
+#   "selenium",
+#   "spotipy",
+# ]
+# ///
 """
 =============================================================================
 File: utils.py

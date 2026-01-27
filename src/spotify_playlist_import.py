@@ -1,3 +1,12 @@
+# /// script
+# dependencies = [
+#   "ytmusicapi",
+#   "requests",
+#   "selenium",
+#   "spotipy",
+# ]
+# ///
+
 """
 =============================================================================
 File: spotify_playlist_import.py

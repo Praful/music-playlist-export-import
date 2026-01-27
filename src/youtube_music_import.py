@@ -1,3 +1,10 @@
+# /// script
+# dependencies = [
+#   "ytmusicapi",
+#   "requests",
+#   "selenium",
+# ]
+# ///
 """
 =============================================================================
 File: youtube_music_import.py

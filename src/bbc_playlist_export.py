@@ -1,3 +1,11 @@
+# /// script
+# dependencies = [
+#   "ytmusicapi",
+#   "requests",
+#   "selenium",
+#   "bs4",
+# ]
+# ///
 """
 =============================================================================
 File: bbc_playlist_export.py
